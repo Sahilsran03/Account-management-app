@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Account Hisaab</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="container py-4">
+    <% if (deleted === 'true') { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            All entries for Account <strong><%= searchAccount %></strong> have been deleted.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    <% } %>
+
+    <h1 class="mb-3">Account #: <%= searchAccount %></h1>
+    <h3>Total Rupees: ₹<%= total %></h3>
+
+    <ul class="list-group mb-4">
+        <% customers.forEach(customer => { %>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>₹<%= customer.rupees %></div>
+                <small><%= customer.date.toLocaleString() %></small>
+            </li>
+        <% }); %>
+    </ul>
+
+    <!-- Toggle Select Entries -->
+<button id="toggleSelect" class="btn btn-primary mb-3">Select for delete</button>
+
+<!-- Delete Selected Form -->
+<form action="/delete-selected" method="POST" id="deleteForm" style="display: none;">
+  <input type="hidden" name="accountNumber" value="<%= searchAccount %>">
+  <button type="submit" class="btn btn-danger mb-3">Delete Selected</button>
+
+  <ul class="list-group">
+    <% customers.forEach(customer => { %>
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+          ₹<%= customer.rupees %> | <%= customer.date.toLocaleString() %>
+        </div>
+        <div class="form-check form-check-inline entry-checkbox" style="display: none;">
+          <input class="form-check-input" type="checkbox" name="selectedIds" value="<%= customer._id %>">
+        </div>
+      </li>
+    <% }) %>
+  </ul>
+</form>
+
+<script>
+  const toggleBtn = document.getElementById('toggleSelect');
+  const checkboxes = document.querySelectorAll('.entry-checkbox');
+  const deleteForm = document.getElementById('deleteForm');
+
+  toggleBtn.addEventListener('click', () => {
+    checkboxes.forEach(cb => cb.style.display = 'inline-block');
+    deleteForm.style.display = 'block';
+    toggleBtn.style.display = 'none'; // hide toggle button after showing
+  });
+</script>
+<br>    
+
+    <!-- Delete Button (Triggers Modal) -->
+    <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+        Delete All Entries
+    </button>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title" id="confirmDeleteLabel">Confirm Deletion</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to delete all entries for account <strong><%= searchAccount %></strong>?
+          </div>
+          <div class="modal-footer">
+            <form action="/delete-account" method="POST">
+                <input type="hidden" name="accountNumber" value="<%= searchAccount %>">
+                <button type="submit" class="btn btn-danger">Yes, Delete</button>
+            </form>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <br><br><a href="/" class="btn btn-secondary">Back to home page</a>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

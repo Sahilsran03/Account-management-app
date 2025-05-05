@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shop</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body class="container py-4">
+
+    <h1 class="mb-4">Shop</h1>
+
+    <form action="/logout" method="get" style="position: absolute; top: 10px; right: 10px;">
+        <button type="submit" class="btn btn-danger">Logout</button>
+    </form>
+
+    <div class="d-flex mb-3 gap-2">
+        <a href="/add" class="btn btn-primary">Add New Entry</a>
+        <form action="/sum" method="POST">
+            <button type="submit" class="btn btn-success">Refresh</button>
+        </form>
+    </div>
+
+    <form class="mb-4" action="/search" method="GET">
+        <div class="input-group">
+            <input type="text" name="accountNumber" class="form-control" placeholder="Enter account name" required>
+            <button class="btn btn-outline-secondary" type="submit">Search</button>
+        </div>
+    </form>
+
+    <% if (typeof total !== 'undefined') { %>
+        <div class="alert alert-info">
+            Total Rupees (All Accounts): ₹<strong><%= total %></strong>
+        </div>
+    <% } %>
+
+    <% if (customers && customers.length > 0) { %>
+        <ul class="list-group">
+            <% customers.forEach(customer => { %>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>Account #:</strong> <%= customer.accountNumber %> |
+                        <strong>Rupees:</strong> ₹<%= customer.rupees %>
+                    </div>
+                    <small><%= customer.date ? customer.date.toLocaleString() : '' %></small>
+                </li>
+            <% }); %>
+        </ul>
+    <% } else { %>
+        <div class="alert alert-warning">No entries found.</div>
+    <% } %>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

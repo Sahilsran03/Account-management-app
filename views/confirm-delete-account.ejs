@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Account Deletion</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <h2 style="color: red;">Danger: This will delete all entries for account #: <%= accountNumber %></h2>
+    <p>Are you sure you want to continue?</p>
+
+    <form action="/delete-account" method="POST" style="display:inline;">
+        <input type="hidden" name="accountNumber" value="<%= accountNumber %>">
+        <button type="submit" style="background-color: red; color: white;">Yes, Delete</button>
+    </form>
+    <a href="/" style="margin-left: 10px;">No, Go Back</a>
+</body>
+</html>
