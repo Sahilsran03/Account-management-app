@@ -7,7 +7,7 @@
 </head>
 <body class="container py-4">
 
-    <h1 class="mb-4">Shop Dashboard</h1>
+    <h1 class="mb-4">Shop</h1>
 
     <form action="/logout" method="get" style="position: absolute; top: 10px; right: 10px;">
         <button type="submit" class="btn btn-danger">Logout</button>
@@ -41,7 +41,7 @@
                         <strong>Account #:</strong> <%= customer.accountNumber %> |
                         <strong>Rupees:</strong> ₹<%= customer.rupees %>
                     </div>
-                    <small><%= customer.formattedDate || '' %></small>
+                    <small><%= customer.date ? customer.date.toLocaleString() : '' %></small>
                 </li>
             <% }); %>
         </ul>

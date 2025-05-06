@@ -7,16 +7,13 @@ const LocalStrategy = require('passport-local');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const cookieParser = require('cookie-parser');
-const moment = require("moment-timezone");
-
 const User = require('./models/User');
 const Customer = require('./models/Customer');
 const authRoutes = require('./routes/auth');
-
+const moment= require("moment-timezone");
 const app = express();
 
-const dbUrl = process.env.ATLASDB_URL;
-
+const dbUrl=process.env.ATLASDB_URL;
 // MongoDB Connection
 mongoose.connect(dbUrl, {
   useNewUrlParser: true,
@@ -25,13 +22,15 @@ mongoose.connect(dbUrl, {
 .then(() => console.log("MongoDB Connected"))
 .catch((err) => console.log(err));
 
+
 const store = MongoStore.create({
-  mongoUrl: dbUrl,
+  mongoUrl:dbUrl,
   crypto: {
     secret: process.env.SESSION_SECRET
   },
-  touchAfter: 24 * 3600,
-});
+  touchAfter:24*3600,
+})
+
 
 // View Engine and Middleware
 app.set("view engine", "ejs");
@@ -46,6 +45,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false
 }));
+
 
 // Passport Setup
 app.use(passport.initialize());
@@ -73,13 +73,7 @@ app.get('/', async (req, res) => {
   try {
     const customers = await Customer.find({});
     const total = customers.reduce((acc, curr) => acc + curr.rupees, 0);
-
-    const formattedCustomers = customers.map(c => ({
-      ...c.toObject(),
-      formattedDate: moment(c.createdAt).tz('Asia/Kolkata').format('DD/MM/YYYY hh:mm:ss A')
-    }));
-
-    res.render('index', { customers: formattedCustomers, total });
+    res.render('index', { customers, total });
   } catch (err) {
     console.error('Error in / route:', err);
     res.status(500).send("Error loading data");
@@ -92,7 +86,7 @@ app.get('/add', (req, res) => {
 
 app.post('/add', async (req, res) => {
   const { accountNumber, rupees } = req.body;
-  const createdDate = new Date().toISOString().split('T')[0];
+  const createdDate = new Date().toISOString().split('T')[0]; // For daily sum
   const newCustomer = new Customer({ accountNumber, rupees, createdDate });
   await newCustomer.save();
   res.redirect("/");
@@ -102,34 +96,21 @@ app.post('/sum', async (req, res) => {
   const today = new Date().toISOString().split('T')[0];
   const customers = await Customer.find({ createdDate: today });
   const total = customers.reduce((acc, curr) => acc + curr.rupees, 0);
-
-  const formattedCustomers = customers.map(c => ({
-    ...c.toObject(),
-    formattedDate: moment(c.createdAt).tz('Asia/Kolkata').format('DD/MM/YYYY hh:mm:ss A')
-  }));
-
-  res.render('index', { customers: formattedCustomers, total });
+  res.render('index', { customers, total });
 });
 
 app.get('/search', async (req, res) => {
   const searchAccount = req.query.accountNumber;
-  const deleted = req.query.deleted || 'false';
+  const deleted = req.query.deleted || 'false'; // Add this line to read from query param
   try {
     const customers = await Customer.find({ accountNumber: searchAccount });
     const total = customers.reduce((acc, curr) => acc + curr.rupees, 0);
-
-    const formattedCustomers = customers.map(c => ({
-      ...c.toObject(),
-      formattedDate: moment(c.createdAt).tz('Asia/Kolkata').format('DD/MM/YYYY hh:mm:ss A')
-    }));
-
-    res.render('account', { customers: formattedCustomers, total, searchAccount, deleted });
+    res.render('account', { customers, total, searchAccount, deleted }); // Pass 'deleted'
   } catch (err) {
     console.error("Error in /search:", err);
     res.status(500).send("Error searching for account");
   }
 });
-
 app.post('/delete-selected', async (req, res) => {
   const { selectedIds, accountNumber } = req.body;
 
