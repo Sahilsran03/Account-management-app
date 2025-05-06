@@ -7,7 +7,7 @@
 </head>
 <body class="container py-4">
 
-    <h1 class="mb-4">Shop</h1>
+    <h1 class="mb-4">Shop Dashboard</h1>
 
     <form action="/logout" method="get" style="position: absolute; top: 10px; right: 10px;">
         <button type="submit" class="btn btn-danger">Logout</button>
@@ -22,7 +22,7 @@
 
     <form class="mb-4" action="/search" method="GET">
         <div class="input-group">
-            <input type="text" name="accountNumber" class="form-control" placeholder="Enter account name" required>
+            <input type="number" name="accountNumber" class="form-control" placeholder="Enter account number" required>
             <button class="btn btn-outline-secondary" type="submit">Search</button>
         </div>
     </form>
@@ -41,7 +41,7 @@
                         <strong>Account #:</strong> <%= customer.accountNumber %> |
                         <strong>Rupees:</strong> ₹<%= customer.rupees %>
                     </div>
-                    <small><%= customer.date ? customer.date.toLocaleString() : '' %></small>
+                    <small><%= customer.formattedDate || '' %></small>
                 </li>
             <% }); %>
         </ul>
