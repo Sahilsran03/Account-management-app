@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const cookieParser = require('cookie-parser');
 const User = require('./models/User');
 const Customer = require('./models/Customer');
@@ -12,13 +13,24 @@ const authRoutes = require('./routes/auth');
 
 const app = express();
 
+const dbUrl=process.env.ATLASDB_URL;
 // MongoDB Connection
-mongoose.connect("mongodb://localhost:27017/hisaab", {
+mongoose.connect(dbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => console.log("MongoDB Connected"))
 .catch((err) => console.log(err));
+
+
+const store = MongoStore.create({
+  mongoUrl:dbUrl,
+  crypto: {
+    secret: process.env.SESSION_SECRET
+  },
+  touchAfter:24*3600,
+})
+
 
 // View Engine and Middleware
 app.set("view engine", "ejs");
@@ -28,10 +40,12 @@ app.use(cookieParser());
 
 // Session Setup
 app.use(session({
-  secret: "thisIsASecretKey",
+  store,
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false
 }));
+
 
 // Passport Setup
 app.use(passport.initialize());
@@ -39,6 +53,8 @@ app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Auth Routes
 app.use('/', authRoutes);

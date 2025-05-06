@@ -1,42 +1,46 @@
 const express = require('express');
-const router = express.Router();
 const passport = require('passport');
 const User = require('../models/User');
 
-// Show register form
+const router = express.Router();
+
+// Register Page
 router.get('/register', (req, res) => {
-  res.render('register');
+    res.render('register', { error: null });
 });
 
-// Handle registration
+// Register Logic
 router.post('/register', async (req, res) => {
-  try {
-    const user = new User({ username: req.body.username });
-    await User.register(user, req.body.password);
-    res.redirect('/login');
-  } catch (err) {
-    res.render('register', { error: err.message });
-  }
+    const { username, password } = req.body;
+    try {
+        const user = await User.register(new User({ username }), password);
+        passport.authenticate('local')(req, res, () => {
+            res.redirect('/');
+        });
+    } catch (err) {
+        console.error(err);
+        res.render('register', { error: 'Username already exists or registration error.' });
+    }
 });
 
-// Show login form
+// Login Page
 router.get('/login', (req, res) => {
-  res.render('login', { error: req.query.error });
+    res.render('login', { error: null });
 });
 
-// Handle login
-router.post('/login',
-  passport.authenticate('local', {
-    failureRedirect: '/login?error=Invalid username or password',
-    successRedirect: '/dashboard',
-  })
-);
+// Login Logic
+router.post('/login', passport.authenticate('local', {
+    failureRedirect: '/login',
+    failureMessage: true
+}), (req, res) => {
+    res.redirect('/');
+});
 
 // Logout
 router.get('/logout', (req, res) => {
-  req.logout(() => {
-    res.redirect('/login');
-  });
+    req.logout(() => {
+        res.redirect('/login');
+    });
 });
 
 module.exports = router;
