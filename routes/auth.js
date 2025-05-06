@@ -4,24 +4,6 @@ const User = require('../models/User');
 
 const router = express.Router();
 
-// Register Page
-router.get('/register', (req, res) => {
-    res.render('register', { error: null });
-});
-
-// Register Logic
-router.post('/register', async (req, res) => {
-    const { username, password } = req.body;
-    try {
-        const user = await User.register(new User({ username }), password);
-        passport.authenticate('local')(req, res, () => {
-            res.redirect('/');
-        });
-    } catch (err) {
-        console.error(err);
-        res.render('register', { error: 'Username already exists or registration error.' });
-    }
-});
 
 // Login Page
 router.get('/login', (req, res) => {
